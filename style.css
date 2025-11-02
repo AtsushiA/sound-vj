@@ -1,0 +1,216 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+}
+
+#app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #000;
+    cursor: crosshair;
+}
+
+#controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+}
+
+.control-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #333;
+}
+
+.control-section:last-child {
+    border-bottom: none;
+}
+
+.control-section h3 {
+    color: #ff0080;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #ccc;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin-left: 10px;
+    accent-color: #ff0080;
+}
+
+input[type="color"] {
+    width: 50px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+select,
+input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: #fff;
+    margin-left: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    background: linear-gradient(45deg, #ff0080, #0080ff);
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 0, 128, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#startStop {
+    background: linear-gradient(45deg, #00ff80, #0080ff);
+}
+
+#fullscreen {
+    background: linear-gradient(45deg, #ff8000, #ff0080);
+}
+
+/* スクロールバーのスタイル */
+#controls::-webkit-scrollbar {
+    width: 8px;
+}
+
+#controls::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+#controls::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #ff0080, #0080ff);
+    border-radius: 4px;
+}
+
+#controls::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #ff0040, #0040ff);
+}
+
+/* フルスクリーン時のスタイル */
+body.fullscreen #controls {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    transform: translateX(20px);
+}
+
+body.fullscreen #controls.show {
+    opacity: 0.9;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+/* フルスクリーン表示用のオーバーレイ */
+.fullscreen-overlay {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 12px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    backdrop-filter: blur(5px);
+}
+
+body.fullscreen .fullscreen-overlay {
+    opacity: 1;
+    animation: fadeInOut 4s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    10%, 90% { opacity: 1; }
+}
+
+/* フルスクリーン時のカーソル自動非表示 */
+body.fullscreen {
+    cursor: none;
+}
+
+body.fullscreen #controls {
+    cursor: default;
+}
+
+body.fullscreen.show-cursor {
+    cursor: default;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    #controls {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+        top: auto;
+        bottom: 20px;
+        height: 200px;
+    }
+    
+    body.fullscreen #controls {
+        transform: translateY(100%);
+    }
+    
+    body.fullscreen #controls:hover {
+        transform: translateY(0);
+    }
+}

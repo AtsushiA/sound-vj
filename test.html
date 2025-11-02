@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイクアクセステスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #222;
+            color: #fff;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background: #0080ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0060cc;
+        }
+        #log {
+            background: #333;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>マイクアクセステスト</h1>
+    <button id="testMic">マイクテスト</button>
+    <button id="clearLog">ログクリア</button>
+    
+    <div id="log"></div>
+
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            log.textContent += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+        
+        document.getElementById('clearLog').addEventListener('click', () => {
+            log.textContent = '';
+        });
+        
+        document.getElementById('testMic').addEventListener('click', async () => {
+            addLog('=== マイクアクセステスト開始 ===');
+            addLog(`URL: ${window.location.href}`);
+            addLog(`Protocol: ${window.location.protocol}`);
+            addLog(`Host: ${window.location.host}`);
+            
+            try {
+                // ブラウザサポートチェック
+                if (!navigator.mediaDevices) {
+                    throw new Error('navigator.mediaDevices がサポートされていません');
+                }
+                
+                if (!navigator.mediaDevices.getUserMedia) {
+                    throw new Error('getUserMedia がサポートされていません');
+                }
+                
+                addLog('✓ MediaDevices API サポート確認');
+                
+                // デバイス一覧取得
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const audioInputs = devices.filter(device => device.kind === 'audioinput');
+                    addLog(`✓ オーディオ入力デバイス数: ${audioInputs.length}`);
+                    
+                    audioInputs.forEach((device, index) => {
+                        addLog(`  Device ${index + 1}: ${device.label || 'Unknown Microphone'}`);
+                    });
+                } catch (error) {
+                    addLog(`⚠ デバイス一覧取得エラー: ${error.message}`);
+                }
+                
+                // マイクアクセス要求
+                addLog('マイクアクセスを要求中...');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
+                
+                addLog('✓ マイクアクセス許可');
+                addLog(`Stream active: ${stream.active}`);
+                addLog(`Audio tracks: ${stream.getAudioTracks().length}`);
+                
+                // AudioContext作成
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                addLog(`✓ AudioContext作成 (state: ${audioContext.state})`);
+                
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                    addLog(`✓ AudioContext再開 (new state: ${audioContext.state})`);
+                }
+                
+                // 分析器作成
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                addLog('✓ オーディオ分析器セットアップ完了');
+                
+                // オーディオレベル監視
+                let testCount = 0;
+                const testInterval = setInterval(() => {
+                    analyser.getByteFrequencyData(dataArray);
+                    const sum = Array.from(dataArray).reduce((a, b) => a + b, 0);
+                    const average = sum / dataArray.length;
+                    
+                    addLog(`Audio level: ${average.toFixed(2)} (test ${++testCount}/10)`);
+                    
+                    if (testCount >= 10) {
+                        clearInterval(testInterval);
+                        addLog('=== テスト完了 ===');
+                        
+                        // クリーンアップ
+                        stream.getTracks().forEach(track => track.stop());
+                        audioContext.close();
+                        addLog('✓ リソースクリーンアップ完了');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                addLog(`❌ エラー: ${error.name} - ${error.message}`);
+                if (error.stack) {
+                    addLog(`Stack: ${error.stack}`);
+                }
+            }
+        });
+        
+        // ページ読み込み時の情報
+        addLog('=== ページ読み込み完了 ===');
+        addLog(`User Agent: ${navigator.userAgent}`);
+        addLog(`HTTPS: ${window.location.protocol === 'https:'}`);
+        addLog(`Localhost: ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'}`);
+    </script>
+</body>
+</html>
