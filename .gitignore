@@ -1,0 +1,23 @@
+# SSL certificates (for local development only)
+cert.pem
+key.pem
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node modules (if any)
+node_modules/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
