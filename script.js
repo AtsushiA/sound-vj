@@ -17,7 +17,7 @@ class AudioVJ {
     this.settings = {
       sensitivity: 1,
       frequencyRange: "mid",
-      particleShape: "circle",
+      particleShape: "wapuu_random",
       particleSize: 10,
       particleCount: 100,
       particleLife: 2,
@@ -30,7 +30,7 @@ class AudioVJ {
       mainColor: "#ff0080",
       subColor: "#0080ff",
       opacity: 0.8,
-      visualMode: "fluid", // 新しい設定
+      visualMode: "particles",
       flowIntensity: 1.5,
       waveAmplitude: 50,
     };
